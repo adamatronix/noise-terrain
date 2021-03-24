@@ -4,12 +4,27 @@ import { octave } from './Utilities';
 class NoiseTerrain {
 
     constructor() {
+      this.canvas;
+      this.context;
+
       this.generateTexture();
+      this.createPlaneGeometry();
+    }
+
+    createPlaneGeometry() {
+      const imgData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
+      const data = imgData.data;
+
+      console.log(data);
     }
 
     generateTexture() {
-      const canvas = document.getElementById('debug-canvas')
-      const c = canvas.getContext('2d')
+      this.canvas = document.getElementById('debug-canvas')
+      this.context = this.canvas.getContext('2d')
+
+      const canvas = this.canvas;
+      const c = this.context;
+
       c.fillStyle = 'black'
       c.fillRect(0,0,canvas.width, canvas.height)
       for(let i=0; i<canvas.width; i++) {
