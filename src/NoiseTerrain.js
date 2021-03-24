@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { octave } from './Utilities';
+import { octave, map } from './Utilities';
 
 class NoiseTerrain {
 
@@ -14,12 +14,26 @@ class NoiseTerrain {
     createPlaneGeometry() {
       const imgData = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
       const data = imgData.data;
-
       console.log(data);
+
+      const geo = new THREE.PlaneGeometry(data.width,data.height,data.width,data.height+1)
+      //assign vert data from the canvas
+      for(let j=0; j<data.height; j++) {
+        for (let i = 0; i < data.width; i++) {
+          const n =  (j*(data.height)  +i)
+          const nn = (j*(data.height+1)+i)
+          const col = data.data[n*4] // the red channel
+          const v1 = geo.vertices[nn]
+          v1.z = map(col,0,255,-10,10) //map from 0:255 to -10:10
+          if(v1.z > 2.5) v1.z *= 1.3 //exaggerate the peaks
+        }
+      }
     }
 
     generateTexture() {
-      this.canvas = document.getElementById('debug-canvas')
+      this.canvas = document.createElement('canvas');
+      this.canvas.width = 500;
+      this.canvas.height = 500;
       this.context = this.canvas.getContext('2d')
 
       const canvas = this.canvas;
