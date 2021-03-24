@@ -1,7 +1,4 @@
 // Add all your modules here to be exported
+import NoiseTerrain from './NoiseTerrain';
 
-/*
-import Example from './Example';
-
-export default Example;
-*/
+export default NoiseTerrain;
