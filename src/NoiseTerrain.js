@@ -48,7 +48,7 @@ class NoiseTerrain {
 
         //add lighting
         const skyColor = 0xB1E1FF;  // light blue
-        const groundColor = 0xB97A20;  // brownish orange
+        const groundColor = 0x000000;  // brownish orange
         const intensity = 1;
         const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
         light.position.set(0,100,0);
@@ -85,7 +85,7 @@ class NoiseTerrain {
       geo.computeFaceNormals();
       geo.computeVertexNormals();
 
-      this.scene.add(plane);
+      this.scene.add(wireframe);
     }
 
     generateTexture() {
