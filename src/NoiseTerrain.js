@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { octave, map } from './Utilities';
+import whiteSpriteFile from './textures/white-sprite.png';
 
 class NoiseTerrain {
 
@@ -14,7 +15,7 @@ class NoiseTerrain {
       this.renderFrame = this.renderFrame.bind(this);
 
       this.setupWorld();
-      this.createPlaneGeometry(this.generateTexture());
+      this.populateSpriteField(this.generateTexture());
       this.renderFrame();
     }
 
@@ -27,7 +28,7 @@ class NoiseTerrain {
        this.clock = new THREE.Clock();
 
        //setup the camera
-       this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.2, 5000);
+       this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.2, 10000);
        this.camera.position.set(2000, 2000, 2000);
        this.camera.lookAt(new THREE.Vector3(0,0,0));
 
@@ -75,9 +76,9 @@ class NoiseTerrain {
         for (let i = 0; i < data.width; i++) {
           const n =  (j*(data.height)  +i)
           const nn = (j*(data.height+1)+i)
-          const col = data.data[n*4] // the red channel
+          
           const v1 = geo.vertices[nn]
-          v1.z = map(col,0,255,-100,200) //map from 0:255 to -10:10
+          v1.z = v1.z = map(col,0,255,-100,200) //map from 0:255 to -10:10
           if(v1.z > 80) v1.z *= 1.1 //exaggerate the peaks
         }
       }
@@ -88,10 +89,38 @@ class NoiseTerrain {
       this.scene.add(wireframe);
     }
 
+    populateSpriteField(data) {
+      const geometry = new THREE.BufferGeometry();
+      const vertices = [];
+      const textureLoader = new THREE.TextureLoader();
+      const whiteSprite = textureLoader.load(whiteSpriteFile);
+  
+      for ( let r = 0; r < data.height; r+=2 ) {
+        for ( let c = 0; c < data.width; c+=2) {
+          const n =  (r*(data.height)  +c)
+          const x = r * 4;
+          const col = data.data[n*4] // the red channel
+          let y = map(col,0,255,-300,600)
+          const z = c * 4;
+  
+          vertices.push( x, y, z );
+        }
+  
+      }
+  
+      geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+  
+  
+      const material = new THREE.PointsMaterial( { size: 4, map: whiteSprite, blending: THREE.AdditiveBlending, depthTest: false, transparent: true } );
+      const particles = new THREE.Points( geometry, material );
+  
+      this.scene.add(particles);
+     }
+
     generateTexture() {
       this.canvas = document.createElement('canvas');
-      this.canvas.width = 1000;
-      this.canvas.height = 1000;
+      this.canvas.width = 300;
+      this.canvas.height = 300;
       this.context = this.canvas.getContext('2d')
 
       const canvas = this.canvas;
