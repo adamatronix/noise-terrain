@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { octave, map } from './Utilities';
 import whiteSpriteFile from './textures/white-sprite.png';
+import blueSpriteFile from './textures/blue-sprite.png';
 
 class NoiseTerrain {
 
@@ -92,35 +93,49 @@ class NoiseTerrain {
     populateSpriteField(data) {
       const geometry = new THREE.BufferGeometry();
       const vertices = [];
+      const geometryBlue = new THREE.BufferGeometry();
+      const verticesBlue = [];
       const textureLoader = new THREE.TextureLoader();
       const whiteSprite = textureLoader.load(whiteSpriteFile);
+      const textureBlueLoader = new THREE.TextureLoader();
+      const blueSprite = textureBlueLoader.load(blueSpriteFile);
   
-      for ( let r = 0; r < data.height; r+=2 ) {
-        for ( let c = 0; c < data.width; c+=2) {
+      for ( let r = 0; r < data.height; r+=1 ) {
+        for ( let c = 0; c < data.width; c+=1) {
           const n =  (r*(data.height)  +c)
           const x = r * 4;
           const col = data.data[n*4] // the red channel
-          let y = map(col,0,255,-300,600)
+          
+          let y = map(col,0,255,-500,500)
           const z = c * 4;
-  
-          vertices.push( x, y, z );
+          
+          if(y > 0) {
+            vertices.push( x, y, z );
+          } else {
+            verticesBlue.push( x, 0, z );
+          }
+          
         }
   
       }
   
       geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-  
+      geometryBlue.setAttribute( 'position', new THREE.Float32BufferAttribute( verticesBlue, 3 ) );
   
       const material = new THREE.PointsMaterial( { size: 4, map: whiteSprite, blending: THREE.AdditiveBlending, depthTest: false, transparent: true } );
       const particles = new THREE.Points( geometry, material );
+
+      const materialBlue = new THREE.PointsMaterial( { size: 4, map: blueSprite, depthTest: false, transparent: true } );
+      const particlesBlue = new THREE.Points( geometryBlue, materialBlue );
   
       this.scene.add(particles);
+      this.scene.add(particlesBlue);
      }
 
     generateTexture() {
       this.canvas = document.createElement('canvas');
-      this.canvas.width = 300;
-      this.canvas.height = 300;
+      this.canvas.width = 400;
+      this.canvas.height = 400;
       this.context = this.canvas.getContext('2d')
 
       const canvas = this.canvas;
